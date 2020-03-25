@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">BreathingLight</string>
+
+    <string name="closed_name">已关闭</string>
+    <string name="opened_name">已开启</string>
+    <string name="ten_percent_closed_name">10% 已关闭</string>
+    <string name="ten_percent_opened_name">10% 已开启</string>
+    <string name="twenty_percent_closed_name">20% 已关闭</string>
+    <string name="twenty_percent_opened_name">20% 已开启</string>
+    <string name="thrity_percent_closed_name">30% 已关闭</string>
+    <string name="thrity_percent_opened_name">30% 已开启</string>
+    <string name="forty_percent_closed_name">40% 已关闭</string>
+    <string name="forty_percent_opened_name">40% 已开启</string>
+    <string name="fifty_percent_closed_name">50% 已关闭</string>
+    <string name="fifty_percent_opened_name">50% 已开启</string>
+    <string name="sixty_percent_closed_name">60% 已关闭</string>
+    <string name="sixty_percent_opened_name">60% 已开启</string>
+    <string name="seventy_percent_closed_name">70% 已关闭</string>
+    <string name="seventy_percent_opened_name">70% 已开启</string>
+    <string name="eighty_percent_closed_name">80% 已关闭</string>
+    <string name="eighty_percent_opened_name">80% 已开启</string>
+    <string name="ninety_percent_closed_name">90% 已关闭</string>
+    <string name="ninety_percent_opened_name">90% 已开启</string>
+    <string name="hundred_percent_closed_name">100% 已关闭</string>
+    <string name="hundred_percent_opened_name">100% 已开启</string>
+</resources>
