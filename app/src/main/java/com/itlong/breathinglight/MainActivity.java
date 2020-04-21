@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 
+import java.io.FileOutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,14 +21,18 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements Pwm.Action{
+public class MainActivity extends AppCompatActivity implements Pwm.Action, BreathingLightCb008.Action{
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private static final long DEF_PERIOD = 10;
 
     private boolean onClickFlag;
     private Timer timer;
     private TimerTask timerTask;
+    boolean isWhiteCheck, isRedCheck, isGreenCheck;
+    private SmdtManager smdt;
+    private Pwm pwm;
+    private BreathingLight breathingLight;
+    private BreathingLightCb008 breathingLightCb008;
 
     @BindView(R.id.whiteCheckBox)CheckBox whiteCheckBox;
     @BindView(R.id.redCheckBox)CheckBox redCheckBox;
@@ -46,11 +51,6 @@ public class MainActivity extends AppCompatActivity implements Pwm.Action{
     @BindView(R.id.ninetyPercentButton)Button ninetyPercentButton;
     @BindView(R.id.hundredPercentButton)Button hundredPercentButton;
 
-    boolean isWhiteCheck, isRedCheck, isGreenCheck;
-
-    private SmdtManager smdt;
-    private Pwm pwm;
-    private BreathingLight breathingLight;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,9 +72,16 @@ public class MainActivity extends AppCompatActivity implements Pwm.Action{
         isRedCheck = redCheckBox.isChecked();
         isGreenCheck = greenCheckBox.isChecked();
 
-        smdt = SmdtManager.create(this);
         pwm = new Pwm(this, DEF_PERIOD, 1.0f);
+        boardInit();  //开发板初始化
+    }
 
+    void boardInit() {
+        if (CfgApp.isCreateBest()) {
+
+        } else {
+            smdt = SmdtManager.create(this);
+        }
     }
 
     @OnClick(R.id.testButton1)
@@ -82,7 +89,8 @@ public class MainActivity extends AppCompatActivity implements Pwm.Action{
         if (false == onClickFlag) {  //原来是关闭
             testButton.setText("已开启");
 //                    timer.schedule(timerTask, 3000, 1 * 100);
-//            smdt.smdtSetGpioDirection(4, 1, 1);  //打开LED 绿色
+//            ledOn();
+            Cb008Operation.setLedBrightness((byte)10);
             checkBoxSetClickable(false);
             if (0.9000001f <= 1.0f) {
                 Log.i(TAG, "0.9000001f <= 1.0f");
@@ -92,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements Pwm.Action{
         } else {
             testButton.setText("已关闭");
             timer.cancel();
-            smdt.smdtSetGpioDirection(4, 1, 0);  //关闭LED 绿色
+            ledOff();
 //            pwm.stop();
             checkBoxSetClickable(true);  //不允许改变
         }
@@ -102,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements Pwm.Action{
 
     @OnClick(R.id.closeButton)
     void onCloseButton() {
+
         if (closeButton.getText().toString().equals(getString(R.string.closed_name))) {  //开启
             closeButton.setText(getString(R.string.opened_name));
             int times = 20;
@@ -115,13 +124,25 @@ public class MainActivity extends AppCompatActivity implements Pwm.Action{
                 Log.e(TAG, "Exception");
                 e.printStackTrace();
             }
-            breathingLight = new BreathingLight(times, 0.1f, 1.0f, this);
-            breathingLight.start();
+            if (CfgApp.isCreateBest()) {
+                breathingLightCb008 = new BreathingLightCb008(times, (byte)0, (byte)255, this);
+                breathingLightCb008.start();
+            } else {
+                breathingLight = new BreathingLight(times, 0.1f, 1.0f, this);
+                breathingLight.start();
+            }
         } else {  //关闭
             closeButton.setText(getString(R.string.closed_name));
-            if (null != breathingLight) {
-                breathingLight.stop();
-                breathingLight = null;
+            if (CfgApp.isCreateBest()) {
+                if (null != breathingLightCb008) {
+                    breathingLightCb008.stop();
+                    breathingLightCb008 = null;
+                }
+            } else {
+                if (null != breathingLight) {
+                    breathingLight.stop();
+                    breathingLight = null;
+                }
             }
         }
     }
@@ -264,6 +285,31 @@ public class MainActivity extends AppCompatActivity implements Pwm.Action{
                 pwm.stop();
                 pwm = null;
             }
+        }
+    }
+
+    void ledOn() {
+        if (CfgApp.isCreateBest()) {  //百度壁虎套件
+            Log.i(TAG, "ledOperation");
+            setLedBrightness((byte)255);
+        } else {
+            smdt.smdtSetGpioDirection(4, 1, 1);  //打开LED 绿色
+        }
+    }
+
+    void ledOff() {
+        if (CfgApp.isCreateBest()) {  //百度壁虎套件
+            setLedBrightness((byte)0);
+        } else {
+            smdt.smdtSetGpioDirection(4, 1, 0);  //关闭LED 绿色
+        }
+    }
+
+    @Override
+    public void setLedBrightness(byte brightness) {
+        if (CfgApp.isCreateBest()) {
+            Log.i(TAG, "brightness:" + (int)(brightness & 0xFF));
+            Cb008Operation.setLedBrightness(brightness);
         }
     }
 }

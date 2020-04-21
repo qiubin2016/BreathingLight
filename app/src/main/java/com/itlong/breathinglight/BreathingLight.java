@@ -7,20 +7,20 @@ import java.util.TimerTask;
 
 public class BreathingLight {
     private static final String TAG = BreathingLight.class.getSimpleName();
-
     private static final float MAX_END = 1.0f;
     private static final float MIN_BEGIN = 0.0f;
     private static final float EQUAL_FLOAT_VALUE = 0.01f;    //比较float值相等的精度
     private static final float STEP = 0.1f;
     private static final long DEF_PERIOD = 10;
+
     private float begin;
     private float end;
     private float actionStep;
     private Pwm pwm;
     private boolean breatheDirection;  //true：呼气，false：吸气
     private long breathePeriod;    //吸气/呼气的间隔
-    private int stepChangeCount;    //每个步长维持的次数
-    private long stepChangePeriod;
+    private int stepChangeCount;    //每个吸气/呼气亮度调节次数
+    private long stepChangePeriod;  //每次吸气/呼气中每级亮度的维持时间
     private Pwm.Action action;
     private Timer timerChangeDirection;
     private Timer timerChangeStep;
@@ -30,7 +30,7 @@ public class BreathingLight {
         this.end = (float) ((end * 1000) / 100 / 10);
         actionStep = this.begin;
         breatheDirection = false;
-        breathePeriod = 60 * 1000 / times / 2;  //1分钟内次数times
+        breathePeriod = 60 * 1000 / times / 2;  //一次呼气/吸气的时间
         stepChangeCount = (int)((this.end - this.begin) / STEP);  //例如：10%—100%变化，STEP = 9
         stepChangePeriod = breathePeriod / stepChangeCount;  //多久要切换一次actionStep
         this.action = action;
